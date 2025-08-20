@@ -1,0 +1,14 @@
+[providers]
+python = "3.11"
+
+[phases.setup]
+nixPkgs = ["poppler_utils"]
+
+[phases.install]
+cmds = ["pip install -r requirements.txt"]
+
+[phases.build]
+cmds = ["mkdir -p uploads"]
+
+[start]
+cmd = "python app/main.py"
