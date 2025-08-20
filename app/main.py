@@ -16,7 +16,9 @@ load_dotenv()
 
 app = FastAPI(title="PDF Text Extractor")
 
-app.mount("/static", StaticFiles(directory="../static"), name="static")
+# Handle static files path correctly
+static_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+app.mount("/static", StaticFiles(directory=static_path), name="static")
 
 direct_pdf_extractor = DirectPDFExtractor()
 pitchdeck_agent = PitchDeckAgent()
@@ -37,7 +39,8 @@ class ReportRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    with open("../static/index.html", "r") as f:
+    html_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "index.html")
+    with open(html_path, "r") as f:
         return HTMLResponse(content=f.read())
 
 @app.post("/upload")
@@ -146,5 +149,4 @@ async def generate_report(request: ReportRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.getenv("PORT", 8000))
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    uvicorn.run(app, host="0.0.0.0", port=8000)
