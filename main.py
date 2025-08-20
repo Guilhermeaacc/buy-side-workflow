@@ -5,18 +5,18 @@ from pydantic import BaseModel
 import os
 import uuid
 from dotenv import load_dotenv
-from direct_pdf_extractor import DirectPDFExtractor
-from pitchdeck_agent import PitchDeckAgent
-from product_agent import ProductAgent
-from web_research_agent import WebResearchAgent
-from market_size_agent import MarketSizeAgent
-from report_generator_agent import ReportGeneratorAgent
+from app.direct_pdf_extractor import DirectPDFExtractor
+from app.pitchdeck_agent import PitchDeckAgent
+from app.product_agent import ProductAgent
+from app.web_research_agent import WebResearchAgent
+from app.market_size_agent import MarketSizeAgent
+from app.report_generator_agent import ReportGeneratorAgent
 
 load_dotenv()
 
 app = FastAPI(title="PDF Text Extractor")
 
-app.mount("/static", StaticFiles(directory="../static"), name="static")
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 direct_pdf_extractor = DirectPDFExtractor()
 pitchdeck_agent = PitchDeckAgent()
@@ -37,7 +37,7 @@ class ReportRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    with open("../static/index.html", "r") as f:
+    with open("static/index.html", "r") as f:
         return HTMLResponse(content=f.read())
 
 @app.post("/upload")
