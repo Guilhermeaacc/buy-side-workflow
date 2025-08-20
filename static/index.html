@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Buy-Side Analysis Platform</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M9 17V7H11V15H13V11H15V15H17V9H19V17H9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M3 21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M5 21V3H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h1>AI Buy-Side Platform</h1>
+                </div>
+                <div class="theme-toggle">
+                    <button id="themeToggle" class="theme-btn">
+                        <svg class="theme-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Upload Section -->
+            <section id="uploadSection" class="upload-section">
+                <div class="upload-container">
+                    <div class="upload-header">
+                        <h2>Upload Pitch Deck</h2>
+                        <p>Extract insights from your PDF using advanced AI analysis</p>
+                    </div>
+                    
+                    <form id="uploadForm" class="upload-form" enctype="multipart/form-data">
+                        <div class="file-drop-zone" id="fileDropZone">
+                            <input type="file" id="pdfFile" name="file" accept=".pdf" required>
+                            <div class="drop-zone-content">
+                                <div class="upload-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <polyline points="14,2 14,8 20,8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <line x1="16" y1="13" x2="8" y2="13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <line x1="16" y1="17" x2="8" y2="17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <polyline points="10,9 9,9 8,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                </div>
+                                <h3>Drop your PDF here</h3>
+                                <p>or <span class="browse-link">browse files</span></p>
+                                <div class="file-requirements">PDF files only • Max 50MB</div>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="upload-btn" id="uploadBtn">
+                            <span class="btn-text">Analyze Document</span>
+                            <div class="btn-loading hidden">
+                                <div class="loading-spinner"></div>
+                                <span>Processing...</span>
+                            </div>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Loading Section -->
+            <section id="loadingSection" class="loading-section hidden">
+                <div class="loading-container">
+                    <div class="loading-animation">
+                        <div class="loading-dots">
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                            <div class="dot"></div>
+                        </div>
+                    </div>
+                    <h3 id="loadingTitle">Processing Document</h3>
+                    <p id="loadingSubtitle">Extracting text and preparing analysis...</p>
+                </div>
+            </section>
+
+            <!-- Results Section -->
+            <section id="resultsSection" class="results-section hidden">
+                <div class="results-container">
+                    <div class="results-header">
+                        <h2>Analysis Ready</h2>
+                        <p>Choose an AI agent to analyze your pitch deck</p>
+                    </div>
+                    
+                    <div class="agent-grid" id="agentGrid">
+                        <div class="agent-card" data-agent="pitchdeck">
+                            <div class="agent-header">
+                                <div class="agent-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                        <line x1="16" y1="2" x2="16" y2="6" stroke="currentColor" stroke-width="2"/>
+                                        <line x1="8" y1="2" x2="8" y2="6" stroke="currentColor" stroke-width="2"/>
+                                        <line x1="3" y1="10" x2="21" y2="10" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <div class="agent-status"></div>
+                            </div>
+                            <h3>Pitch Deck Agent</h3>
+                            <p>Extracts all metrics, numbers and key information from your pitch deck</p>
+                            <button class="agent-btn">
+                                <span>Analyze</span>
+                                <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="agent-card" data-agent="product">
+                            <div class="agent-header">
+                                <div class="agent-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <div class="agent-status"></div>
+                            </div>
+                            <h3>Product Agent</h3>
+                            <p>Explains what the product does, how it works and its key features</p>
+                            <button class="agent-btn">
+                                <span>Analyze</span>
+                                <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="agent-card" data-agent="web-research">
+                            <div class="agent-header">
+                                <div class="agent-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <div class="agent-status"></div>
+                            </div>
+                            <h3>Web Research Agent</h3>
+                            <p>Extracts company name and finds latest news and relevant content online</p>
+                            <button class="agent-btn">
+                                <span>Analyze</span>
+                                <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="agent-card" data-agent="market-size">
+                            <div class="agent-header">
+                                <div class="agent-icon">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" stroke="currentColor" stroke-width="2"/>
+                                        <polyline points="3.27,6.96 12,12.01 20.73,6.96" stroke="currentColor" stroke-width="2"/>
+                                        <line x1="12" y1="22.08" x2="12" y2="12" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                </div>
+                                <div class="agent-status"></div>
+                            </div>
+                            <h3>Market Size Agent</h3>
+                            <p>Estimates TAM, SAM, and SOM using product and company information</p>
+                            <button class="agent-btn">
+                                <span>Analyze</span>
+                                <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Report Generation Section -->
+                    <div class="report-generation-section" id="reportSection">
+                        <div class="report-header">
+                            <h3>📊 Complete Analysis Report</h3>
+                            <p>Generate a comprehensive report combining all agent analyses</p>
+                        </div>
+                        <div class="report-status" id="reportStatus">
+                            <div class="agents-status">
+                                <span class="agent-status-item" id="statusPitchdeck">📋 Pitch Deck</span>
+                                <span class="agent-status-item" id="statusProduct">🚀 Product</span>
+                                <span class="agent-status-item" id="statusResearch">🌐 Research</span>
+                                <span class="agent-status-item" id="statusMarket">📈 Market</span>
+                            </div>
+                            <button id="generateReportBtn" class="generate-report-btn" disabled>
+                                <span class="btn-text">Generate Complete Report</span>
+                                <div class="btn-loading hidden">
+                                    <div class="loading-spinner"></div>
+                                    <span>Generating...</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="extracted-text-section">
+                        <details class="text-details">
+                            <summary class="text-summary">
+                                <span>View Extracted Text</span>
+                                <svg class="chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <polyline points="6,9 12,15 18,9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                            </summary>
+                            <div class="text-content">
+                                <div id="extractedText" class="extracted-text"></div>
+                                <button id="copyBtn" class="copy-btn">
+                                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/>
+                                    </svg>
+                                    <span>Copy Text</span>
+                                </button>
+                            </div>
+                        </details>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Analysis Section -->
+            <section id="analysisSection" class="analysis-section hidden">
+                <div class="analysis-container">
+                    <div class="analysis-header">
+                        <button id="backBtn" class="back-btn">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <polyline points="15,18 9,12 15,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Back to Agents</span>
+                        </button>
+                        <h2 id="analysisTitle">Analysis Results</h2>
+                    </div>
+                    
+                    <div class="analysis-content">
+                        <div id="analysisText" class="analysis-text"></div>
+                        <div class="analysis-actions">
+                            <button id="copyAnalysisBtn" class="copy-btn">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                <span>Copy Analysis</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Report Section -->
+            <section id="reportDisplaySection" class="report-display-section hidden">
+                <div class="report-display-container">
+                    <div class="report-display-header">
+                        <button id="backToResultsBtn" class="back-btn">
+                            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <polyline points="15,18 9,12 15,6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <span>Back to Results</span>
+                        </button>
+                        <h2>📊 Comprehensive Business Report</h2>
+                        <div class="report-actions">
+                            <button id="copyReportBtn" class="copy-btn">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/>
+                                </svg>
+                                <span>Copy Report</span>
+                            </button>
+                            <button id="downloadReportBtn" class="download-btn">
+                                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>Download</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="report-content">
+                        <div id="reportContent" class="report-text"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Error Section -->
+            <div id="errorSection" class="error-section hidden">
+                <div class="error-container">
+                    <div class="error-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <line x1="15" y1="9" x2="9" y2="15" stroke="currentColor" stroke-width="2"/>
+                            <line x1="9" y1="9" x2="15" y2="15" stroke="currentColor" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h3>Something went wrong</h3>
+                    <p id="errorMessage">An unexpected error occurred</p>
+                    <button id="retryBtn" class="retry-btn">Try Again</button>
+                </div>
+            </div>
+        </main>
+
+        <!-- Toast Notifications -->
+        <div id="toastContainer" class="toast-container"></div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadSection = document.getElementById('uploadSection');
+        const loadingSection = document.getElementById('loadingSection');
+        const resultsSection = document.getElementById('resultsSection');
+        const analysisSection = document.getElementById('analysisSection');
+        const reportDisplaySection = document.getElementById('reportDisplaySection');
+        const errorSection = document.getElementById('errorSection');
+        
+        const fileDropZone = document.getElementById('fileDropZone');
+        const pdfFileInput = document.getElementById('pdfFile');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const loadingTitle = document.getElementById('loadingTitle');
+        const loadingSubtitle = document.getElementById('loadingSubtitle');
+        
+        const extractedTextDiv = document.getElementById('extractedText');
+        const copyBtn = document.getElementById('copyBtn');
+        const analysisTextDiv = document.getElementById('analysisText');
+        const analysisTitle = document.getElementById('analysisTitle');
+        const copyAnalysisBtn = document.getElementById('copyAnalysisBtn');
+        const backBtn = document.getElementById('backBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const retryBtn = document.getElementById('retryBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const toastContainer = document.getElementById('toastContainer');
+        
+        // Report elements
+        const generateReportBtn = document.getElementById('generateReportBtn');
+        const reportContent = document.getElementById('reportContent');
+        const copyReportBtn = document.getElementById('copyReportBtn');
+        const downloadReportBtn = document.getElementById('downloadReportBtn');
+        const backToResultsBtn = document.getElementById('backToResultsBtn');
+        
+        // Agent status elements
+        const statusPitchdeck = document.getElementById('statusPitchdeck');
+        const statusProduct = document.getElementById('statusProduct');
+        const statusResearch = document.getElementById('statusResearch');
+        const statusMarket = document.getElementById('statusMarket');
+        
+        const agentCards = document.querySelectorAll('.agent-card');
+        
+        let currentExtractedText = '';
+        let agentCache = {};
+        let currentTextHash = '';
+        let reportCache = null;
+        let completedAgents = new Set();
+        let agentResults = {};
+        
+        // Theme Management
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const currentTheme = localStorage.getItem('theme') || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', currentTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        });
+        
+        // Toast Notification System
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `
+                <div class="toast-content">
+                    <span>${message}</span>
+                    <button class="toast-close">×</button>
+                </div>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Animate in
+            setTimeout(() => toast.classList.add('show'), 100);
+            
+            // Auto remove
+            const autoRemove = setTimeout(() => removeToast(toast), duration);
+            
+            // Manual close
+            toast.querySelector('.toast-close').addEventListener('click', () => {
+                clearTimeout(autoRemove);
+                removeToast(toast);
+            });
+        }
+        
+        function removeToast(toast) {
+            toast.classList.remove('show');
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 300);
+        }
+        
+        // Simple hash function for caching
+        function hashText(text) {
+            let hash = 0;
+            if (text.length === 0) return hash;
+            for (let i = 0; i < text.length; i++) {
+                const char = text.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash).toString();
+        }
+        
+        // File Drop Zone
+        fileDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.add('drag-over');
+        });
+        
+        fileDropZone.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.remove('drag-over');
+        });
+        
+        fileDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileDropZone.classList.remove('drag-over');
+            
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                pdfFileInput.files = files;
+                updateFileLabel(files[0]);
+            } else {
+                showToast('Please drop a valid PDF file', 'error');
+            }
+        });
+        
+        pdfFileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                updateFileLabel(this.files[0]);
+            }
+        });
+        
+        function updateFileLabel(file) {
+            const dropZoneContent = fileDropZone.querySelector('.drop-zone-content h3');
+            dropZoneContent.textContent = file.name;
+        }
+        
+        // Section Management
+        function hideAllSections() {
+            uploadSection.classList.add('hidden');
+            loadingSection.classList.add('hidden');
+            resultsSection.classList.add('hidden');
+            analysisSection.classList.add('hidden');
+            reportDisplaySection.classList.add('hidden');
+            errorSection.classList.add('hidden');
+        }
+        
+        function showSection(section) {
+            hideAllSections();
+            section.classList.remove('hidden');
+        }
+        
+        function showLoading(title = 'Processing Document', subtitle = 'This may take a few moments...') {
+            loadingTitle.textContent = title;
+            loadingSubtitle.textContent = subtitle;
+            showSection(loadingSection);
+        }
+        
+        function showError(message, showRetry = true) {
+            errorMessage.textContent = message;
+            retryBtn.style.display = showRetry ? 'block' : 'none';
+            showSection(errorSection);
+            showToast(message, 'error');
+        }
+        
+        // Form Submission
+        uploadForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const file = pdfFileInput.files[0];
+            if (!file) {
+                showToast('Please select a PDF file', 'error');
+                return;
+            }
+            
+            if (file.type !== 'application/pdf') {
+                showToast('Please select a valid PDF file', 'error');
+                return;
+            }
+            
+            if (file.size > 50 * 1024 * 1024) { // 50MB limit
+                showToast('File size too large. Please select a file under 50MB', 'error');
+                return;
+            }
+            
+            showLoading('Processing PDF', 'Extracting text using AI...');
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentExtractedText = data.extracted_text;
+                    currentTextHash = hashText(data.extracted_text);
+                    agentCache = {};
+                    showResults(data.extracted_text);
+                    showToast('PDF processed successfully!', 'success');
+                } else {
+                    showError(data.detail || 'Failed to process PDF');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        });
+        
+        function showResults(text) {
+            extractedTextDiv.textContent = text;
+            // Reset report state
+            completedAgents.clear();
+            agentResults = {};
+            reportCache = null;
+            updateReportButtonState();
+            updateAgentStatusDisplay();
+            showSection(resultsSection);
+        }
+        
+        // Report Management Functions
+        function updateAgentStatusDisplay() {
+            const statusElements = {
+                'pitchdeck': statusPitchdeck,
+                'product': statusProduct,
+                'web-research': statusResearch,
+                'market-size': statusMarket
+            };
+            
+            Object.keys(statusElements).forEach(agentType => {
+                const element = statusElements[agentType];
+                if (completedAgents.has(agentType)) {
+                    element.classList.add('completed');
+                } else {
+                    element.classList.remove('completed');
+                }
+            });
+        }
+        
+        function updateReportButtonState() {
+            const allAgentsCompleted = completedAgents.size === 4;
+            generateReportBtn.disabled = !allAgentsCompleted;
+            
+            if (allAgentsCompleted) {
+                generateReportBtn.classList.add('ready');
+            } else {
+                generateReportBtn.classList.remove('ready');
+            }
+        }
+        
+        function markAgentCompleted(agentType, result) {
+            completedAgents.add(agentType);
+            agentResults[agentType] = result;
+            updateAgentStatusDisplay();
+            updateReportButtonState();
+            
+            if (completedAgents.size === 4) {
+                showToast('All analyses complete! You can now generate the full report.', 'success', 5000);
+            }
+        }
+        
+        // Agent Handling
+        agentCards.forEach(card => {
+            const agentBtn = card.querySelector('.agent-btn');
+            const agentType = card.getAttribute('data-agent');
+            const agentStatus = card.querySelector('.agent-status');
+            
+            agentBtn.addEventListener('click', async function() {
+                if (!currentExtractedText) {
+                    showToast('No extracted text available', 'error');
+                    return;
+                }
+                
+                // Check cache first
+                const cacheKey = `${currentTextHash}_${agentType}`;
+                if (agentCache[cacheKey]) {
+                    // Mark agent as completed if using cached result
+                    if (!completedAgents.has(agentType)) {
+                        markAgentCompleted(agentType, {
+                            content: agentCache[cacheKey],
+                            cached: true
+                        });
+                    }
+                    showAnalysis(agentCache[cacheKey], getAgentTitle(agentType, true));
+                    return;
+                }
+                
+                // Show loading state
+                agentBtn.disabled = true;
+                agentBtn.innerHTML = '<span>Analyzing...</span>';
+                agentStatus.classList.add('loading');
+                
+                showLoading('Running Analysis', `${getAgentTitle(agentType)} is processing your document...`);
+                
+                try {
+                    const endpoint = getAgentEndpoint(agentType);
+                    if (!endpoint) {
+                        showError('Agent not available yet');
+                        return;
+                    }
+                    
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            extracted_text: currentExtractedText
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        let analysisContent = formatAnalysisContent(data, agentType);
+                        
+                        // Cache the result
+                        agentCache[cacheKey] = analysisContent;
+                        agentStatus.classList.add('completed');
+                        
+                        // Mark agent as completed for report generation
+                        markAgentCompleted(agentType, {
+                            content: analysisContent,
+                            rawData: data
+                        });
+                        
+                        showAnalysis(analysisContent, getAgentTitle(agentType));
+                        showToast('Analysis completed!', 'success');
+                    } else {
+                        showError(data.detail || 'Analysis failed');
+                    }
+                } catch (error) {
+                    showError('Analysis error: ' + error.message);
+                } finally {
+                    agentBtn.disabled = false;
+                    agentBtn.innerHTML = `
+                        <span>Analyze</span>
+                        <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    `;
+                    agentStatus.classList.remove('loading');
+                }
+            });
+        });
+        
+        function getAgentEndpoint(agentType) {
+            const endpoints = {
+                'pitchdeck': '/analyze',
+                'product': '/analyze_product',
+                'web-research': '/research_company',
+                'market-size': '/analyze_market_size'
+            };
+            return endpoints[agentType];
+        }
+        
+        function getAgentTitle(agentType, cached = false) {
+            const titles = {
+                'pitchdeck': 'Pitch Deck Analysis',
+                'product': 'Product Analysis',
+                'web-research': 'Web Research Analysis',
+                'market-size': 'Market Size Analysis'
+            };
+            return titles[agentType] + (cached ? ' (Cached)' : '');
+        }
+        
+        function formatAnalysisContent(data, agentType) {
+            if (agentType === 'web-research') {
+                return `Company: ${data.company_name}\n\n${data.research_content}`;
+            } else if (agentType === 'market-size') {
+                return data.market_analysis;
+            } else {
+                return data.analysis;
+            }
+        }
+        
+        // Simple markdown to HTML converter for basic formatting
+        function markdownToHtml(markdown) {
+            let html = markdown
+                // Headers
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gm, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gm, '<h1>$1</h1>')
+                
+                // Bold text
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                
+                // Bullet points
+                .replace(/^- (.*$)/gm, '<li>$1</li>')
+                
+                // Links
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
+                
+                // Line breaks
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/\n/g, '<br>');
+            
+            // Wrap in paragraph tags and handle lists
+            html = '<p>' + html + '</p>';
+            
+            // Clean up list formatting
+            html = html.replace(/<p><li>/g, '<ul><li>');
+            html = html.replace(/<\/li><\/p>/g, '</li></ul>');
+            html = html.replace(/<\/li><br><li>/g, '</li><li>');
+            
+            // Clean up empty paragraphs
+            html = html.replace(/<p><\/p>/g, '');
+            html = html.replace(/<p><br><\/p>/g, '');
+            
+            return html;
+        }
+        
+        function showAnalysis(content, title) {
+            analysisTitle.textContent = title;
+            
+            // Check if content appears to be markdown (contains # headers or ** bold)
+            if (content.includes('#') || content.includes('**')) {
+                analysisTextDiv.innerHTML = markdownToHtml(content);
+            } else {
+                analysisTextDiv.textContent = content;
+            }
+            
+            showSection(analysisSection);
+        }
+        
+        // Copy functionality
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(extractedTextDiv.textContent);
+                showToast('Text copied to clipboard!', 'success');
+            } catch (err) {
+                showToast('Failed to copy text', 'error');
+            }
+        });
+        
+        copyAnalysisBtn.addEventListener('click', async () => {
+            try {
+                // Copy the original content (markdown or text)
+                const content = analysisTextDiv.innerHTML ? analysisTextDiv.textContent : analysisTextDiv.textContent;
+                await navigator.clipboard.writeText(content);
+                showToast('Analysis copied to clipboard!', 'success');
+            } catch (err) {
+                showToast('Failed to copy analysis', 'error');
+            }
+        });
+        
+        // Report Generation
+        generateReportBtn.addEventListener('click', async () => {
+            if (completedAgents.size !== 4) {
+                showToast('Please complete all analyses first', 'error');
+                return;
+            }
+            
+            // Check cache first
+            if (reportCache) {
+                showReport(reportCache);
+                return;
+            }
+            
+            // Show loading state
+            const btnText = generateReportBtn.querySelector('.btn-text');
+            const btnLoading = generateReportBtn.querySelector('.btn-loading');
+            btnText.classList.add('hidden');
+            btnLoading.classList.remove('hidden');
+            generateReportBtn.disabled = true;
+            
+            showLoading('Generating Comprehensive Report', 'Merging all analyses into a beautiful report...');
+            
+            try {
+                // Prepare the request data
+                const requestData = {
+                    pitchdeck_analysis: agentResults['pitchdeck']?.content || '',
+                    product_analysis: agentResults['product']?.content || '',
+                    web_research: agentResults['web-research']?.content || '',
+                    market_analysis: agentResults['market-size']?.content || '',
+                    company_name: agentResults['web-research']?.rawData?.company_name || null
+                };
+                
+                const response = await fetch('/generate_report', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    reportCache = data.comprehensive_report;
+                    showReport(reportCache);
+                    showToast('Comprehensive report generated!', 'success');
+                } else {
+                    showError(data.detail || 'Failed to generate report');
+                }
+            } catch (error) {
+                showError('Report generation error: ' + error.message);
+            } finally {
+                btnText.classList.remove('hidden');
+                btnLoading.classList.add('hidden');
+                generateReportBtn.disabled = false;
+            }
+        });
+        
+        // Report display functions
+        function showReport(content) {
+            reportContent.innerHTML = '';
+            
+            // Check if content appears to be markdown
+            if (content.includes('#') || content.includes('**')) {
+                reportContent.innerHTML = markdownToHtml(content);
+            } else {
+                reportContent.textContent = content;
+            }
+            
+            showSection(reportDisplaySection);
+        }
+        
+        // Report actions
+        copyReportBtn.addEventListener('click', async () => {
+            try {
+                const content = reportContent.textContent || reportCache;
+                await navigator.clipboard.writeText(content);
+                showToast('Report copied to clipboard!', 'success');
+            } catch (err) {
+                showToast('Failed to copy report', 'error');
+            }
+        });
+        
+        downloadReportBtn.addEventListener('click', () => {
+            try {
+                const content = reportCache || reportContent.textContent;
+                const blob = new Blob([content], { type: 'text/markdown' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'comprehensive-business-report.md';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                showToast('Report downloaded!', 'success');
+            } catch (err) {
+                showToast('Failed to download report', 'error');
+            }
+        });
+        
+        backToResultsBtn.addEventListener('click', () => {
+            showSection(resultsSection);
+        });
+        
+        // Navigation
+        backBtn.addEventListener('click', () => {
+            showSection(resultsSection);
+        });
+        
+        retryBtn.addEventListener('click', () => {
+            showSection(uploadSection);
+        });
+    </script>
+</body>
+</html>
