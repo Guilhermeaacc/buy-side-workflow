@@ -16,7 +16,13 @@ load_dotenv()
 
 app = FastAPI(title="PDF Text Extractor")
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Handle static files - adjust path for Railway deployment
+static_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
+else:
+    # Fallback for local development
+    app.mount("/static", StaticFiles(directory="static"), name="static")
 
 direct_pdf_extractor = DirectPDFExtractor()
 pitchdeck_agent = PitchDeckAgent()
@@ -37,7 +43,12 @@ class ReportRequest(BaseModel):
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():
-    with open("static/index.html", "r") as f:
+    # Handle HTML file path for Railway deployment
+    html_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "index.html")
+    if not os.path.exists(html_path):
+        html_path = "static/index.html"  # Fallback for local development
+    
+    with open(html_path, "r") as f:
         return HTMLResponse(content=f.read())
 
 @app.post("/upload")
