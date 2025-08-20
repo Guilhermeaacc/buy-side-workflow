@@ -4,6 +4,8 @@ from fastapi.responses import HTMLResponse, JSONResponse
 from pydantic import BaseModel
 import os
 import uuid
+import tempfile
+import logging
 from dotenv import load_dotenv
 from direct_pdf_extractor import DirectPDFExtractor
 from pitchdeck_agent import PitchDeckAgent
@@ -13,6 +15,10 @@ from market_size_agent import MarketSizeAgent
 from report_generator_agent import ReportGeneratorAgent
 
 load_dotenv()
+
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="PDF Text Extractor")
 
@@ -45,21 +51,36 @@ async def read_root():
 
 @app.post("/upload")
 async def upload_pdf(file: UploadFile = File(...)):
+    logger.info(f"📁 Received file upload: {file.filename}")
+    
     if not file.filename.lower().endswith('.pdf'):
         raise HTTPException(status_code=400, detail="Only PDF files are allowed")
     
-    file_id = str(uuid.uuid4())
-    file_path = f"uploads/{file_id}.pdf"
-    
-    with open(file_path, "wb") as buffer:
-        content = await file.read()
-        buffer.write(content)
-    
+    # Use temporary file instead of uploads directory
+    temp_file = None
     try:
+        # Create a temporary file
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.pdf')
+        file_path = temp_file.name
+        
+        logger.info(f"📁 Created temporary file: {file_path}")
+        
+        # Write uploaded content to temporary file
+        content = await file.read()
+        temp_file.write(content)
+        temp_file.close()
+        
+        logger.info(f"📁 Wrote {len(content)} bytes to temporary file")
+        
         # Direct PDF processing using OpenAI Responses API
+        logger.info("🔄 Starting PDF text extraction...")
         extracted_text = await direct_pdf_extractor.extract_text_from_pdf(file_path)
         
-        os.remove(file_path)
+        logger.info(f"✅ PDF extraction completed, text length: {len(extracted_text)}")
+        
+        # Clean up temporary file
+        os.unlink(file_path)
+        logger.info("🗑️ Cleaned up temporary file")
         
         return JSONResponse(content={
             "success": True,
@@ -67,8 +88,16 @@ async def upload_pdf(file: UploadFile = File(...)):
         })
     
     except Exception as e:
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        logger.error(f"❌ Error processing PDF: {str(e)}")
+        
+        # Clean up temporary file if it exists
+        if temp_file and os.path.exists(temp_file.name):
+            try:
+                os.unlink(temp_file.name)
+                logger.info("🗑️ Cleaned up temporary file after error")
+            except Exception as cleanup_error:
+                logger.warning(f"⚠️ Failed to cleanup temporary file: {cleanup_error}")
+        
         raise HTTPException(status_code=500, detail=f"Error processing PDF: {str(e)}")
 
 @app.post("/analyze")
