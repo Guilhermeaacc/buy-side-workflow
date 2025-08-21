@@ -8,6 +8,27 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            50: '#eff6ff',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
 <body>
     <div class="app">
@@ -87,6 +108,16 @@
                     </div>
                     <h3 id="loadingTitle">Processing Document</h3>
                     <p id="loadingSubtitle">Extracting text and preparing analysis...</p>
+                    
+                    <!-- Progress Bar -->
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span id="progressPercentage">0%</span>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -112,8 +143,8 @@
                                 </div>
                                 <div class="agent-status"></div>
                             </div>
-                            <h3>Pitch Deck Agent</h3>
-                            <p>Extracts all metrics, numbers and key information from your pitch deck</p>
+                            <h3>Executive Summary Agent</h3>
+                            <p>Provides executive summary of key business metrics and company highlights</p>
                             <button class="agent-btn">
                                 <span>Analyze</span>
                                 <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -132,8 +163,8 @@
                                 </div>
                                 <div class="agent-status"></div>
                             </div>
-                            <h3>Product Agent</h3>
-                            <p>Explains what the product does, how it works and its key features</p>
+                            <h3>Quick Checks Agent</h3>
+                            <p>Performs rapid VC due diligence checks across problem, market, team, and vision</p>
                             <button class="agent-btn">
                                 <span>Analyze</span>
                                 <svg class="btn-arrow" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -192,8 +223,8 @@
                         </div>
                         <div class="report-status" id="reportStatus">
                             <div class="agents-status">
-                                <span class="agent-status-item" id="statusPitchdeck">📋 Pitch Deck</span>
-                                <span class="agent-status-item" id="statusProduct">🚀 Product</span>
+                                <span class="agent-status-item" id="statusPitchdeck">📋 Executive Summary</span>
+                                <span class="agent-status-item" id="statusProduct">🚀 Quick Checks</span>
                                 <span class="agent-status-item" id="statusResearch">🌐 Research</span>
                                 <span class="agent-status-item" id="statusMarket">📈 Market</span>
                             </div>
@@ -244,7 +275,238 @@
                     </div>
                     
                     <div class="analysis-content">
-                        <div id="analysisText" class="analysis-text"></div>
+                        <!-- Quick Checks Interactive Analysis - React Style with Tailwind -->
+                        <div id="quickChecksAnalysis" class="hidden">
+                            <!-- Main Card Container -->
+                            <div class="quick-checks-container">
+                                <!-- Header Section -->
+                                <div class="space-y-2">
+                                    <h2 id="companyName" class="company-name">[Company Name]</h2>
+                                    <p id="companySector" class="company-sector">Sector: [Sector]</p>
+                                </div>
+
+                                <!-- Filter Buttons -->
+                                <div class="flex flex-wrap gap-2">
+                                    <button class="filter-btn-modern active" data-section="all">Todas</button>
+                                    <button class="filter-btn-modern" data-section="problem">Problem</button>
+                                    <button class="filter-btn-modern" data-section="market">Market</button>
+                                    <button class="filter-btn-modern" data-section="product">Product & Technology</button>
+                                    <button class="filter-btn-modern" data-section="team">Team</button>
+                                    <button class="filter-btn-modern" data-section="vision">Vision of the Future</button>
+                                </div>
+
+                                <!-- Statistics Summary -->
+                                <div class="stats-summary">
+                                    <span class="stat-item">Total: <span id="totalQuestions" class="stat-value">11</span></span>
+                                    <span class="stat-item">Yes: <span id="yesCount" class="stat-value stat-yes">0</span></span>
+                                    <span class="stat-item">No: <span id="noCount" class="stat-value stat-no">0</span></span>
+                                    <span class="stat-item">NEI: <span id="neiCount" class="stat-value stat-nei">0</span></span>
+                                </div>
+
+                                <!-- Main Content Grid -->
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <!-- Table Section (Left) -->
+                                    <div class="lg:col-span-2">
+                                        <div class="space-y-4">
+                                            <h3 id="currentSectionTitle" class="section-title">All Questions</h3>
+                                            
+                                            <!-- Modern Table -->
+                                            <div class="table-container">
+                                                <div class="overflow-x-auto">
+                                                    <table class="w-full">
+                                                        <thead class="table-header">
+                                                            <tr>
+                                                                <th class="table-header-cell">Pergunta</th>
+                                                                <th class="table-header-cell">Resposta</th>
+                                                                <th class="table-header-cell">Justificativa</th>
+                                                                <th class="table-header-cell text-center">Grade</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody id="questionsTableBody" class="table-body">
+                                                            <!-- Table rows will be dynamically populated -->
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                                <div id="tableCaption" class="table-caption">
+                                                    Items from "All Questions" section.
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Score Panel (Right) -->
+                                    <div class="lg:col-span-1">
+                                        <div class="score-panel">
+                                            <!-- Circular Progress Chart -->
+                                            <div class="flex flex-col items-center space-y-4">
+                                                <div class="relative w-32 h-32">
+                                                    <svg class="w-32 h-32 transform -rotate-90" viewBox="0 0 120 120">
+                                                        <!-- Background circle -->
+                                                        <circle cx="60" cy="60" r="50" fill="none" stroke="rgb(51 65 85)" stroke-width="8"/>
+                                                        <!-- Progress circle -->
+                                                        <circle id="progressCircle" cx="60" cy="60" r="50" fill="none" stroke="url(#gradient)" 
+                                                            stroke-width="8" stroke-linecap="round" stroke-dasharray="314.16" stroke-dashoffset="314.16"
+                                                            class="transition-all duration-1000 ease-out"/>
+                                                        <!-- Gradient definition -->
+                                                        <defs>
+                                                            <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                                                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                                                            </linearGradient>
+                                                        </defs>
+                                                    </svg>
+                                                    <!-- Score text overlay -->
+                                                    <div class="absolute inset-0 flex flex-col items-center justify-center">
+                                                        <span id="scoreValue" class="score-value">0.0</span>
+                                                        <span class="score-label">Score</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                <p class="score-description">Pontuação (0-10)</p>
+                                            </div>
+
+                                            <!-- Score Breakdown -->
+                                            <div class="space-y-2">
+                                                <div class="breakdown-item-modern" data-section="problem">
+                                                    <span class="section-label">Problem</span>
+                                                    <span class="section-score">-</span>
+                                                </div>
+                                                <div class="breakdown-item-modern" data-section="market">
+                                                    <span class="section-label">Market</span>
+                                                    <span class="section-score">-</span>
+                                                </div>
+                                                <div class="breakdown-item-modern" data-section="product">
+                                                    <span class="section-label">Product</span>
+                                                    <span class="section-score">-</span>
+                                                </div>
+                                                <div class="breakdown-item-modern" data-section="team">
+                                                    <span class="section-label">Team</span>
+                                                    <span class="section-score">-</span>
+                                                </div>
+                                                <div class="breakdown-item-modern" data-section="vision">
+                                                    <span class="section-label">Vision</span>
+                                                    <span class="section-score">-</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Executive Summary Display -->
+                        <div id="executiveSummaryAnalysis" class="hidden">
+                            <!-- Main Container -->
+                            <div class="executive-summary-container">
+                                <!-- Header Card -->
+                                <div class="executive-header-card">
+                                    <h1 id="executiveCompanyName" class="executive-company-name">[Company Name]</h1>
+                                    <span id="executiveSector" class="executive-sector-badge">Sector: [Sector]</span>
+                                </div>
+
+                                <!-- Main Grid Layout -->
+                                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                    <!-- Left Column - Main Content (2/3 width) -->
+                                    <div class="lg:col-span-2 space-y-6">
+                                        <!-- Company Overview Card -->
+                                        <div class="executive-content-card">
+                                            <h2 class="executive-section-title">Company Overview</h2>
+                                            <ul id="executiveOverview" class="executive-bullet-list">
+                                                <!-- Bullets will be populated here -->
+                                            </ul>
+                                        </div>
+
+                                        <!-- Product Card -->
+                                        <div class="executive-content-card">
+                                            <h2 class="executive-section-title">Product</h2>
+                                            <ul id="executiveProduct" class="executive-bullet-list">
+                                                <!-- Bullets will be populated here -->
+                                            </ul>
+                                        </div>
+
+                                        <!-- Business Model Card -->
+                                        <div class="executive-content-card">
+                                            <h2 class="executive-section-title">Business Model</h2>
+                                            <ul id="executiveBusinessModel" class="executive-bullet-list">
+                                                <!-- Bullets will be populated here -->
+                                            </ul>
+                                        </div>
+
+                                        <!-- Team Card -->
+                                        <div class="executive-content-card">
+                                            <h2 class="executive-section-title">Team</h2>
+                                            <ul id="executiveTeam" class="executive-bullet-list">
+                                                <!-- Bullets will be populated here -->
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                    <!-- Right Column - Sidebar (1/3 width) -->
+                                    <div class="lg:col-span-1 space-y-6">
+                                        <!-- Quick Facts Card -->
+                                        <div class="executive-sidebar-card">
+                                            <h3 class="executive-sidebar-title">Quick Facts</h3>
+                                            <div class="executive-facts-grid">
+                                                <div class="executive-fact-item">
+                                                    <span class="executive-fact-label">Stage</span>
+                                                    <span id="executiveStage" class="executive-fact-value">Not specified</span>
+                                                </div>
+                                                <div class="executive-fact-item">
+                                                    <span class="executive-fact-label">HQ</span>
+                                                    <span id="executiveHQ" class="executive-fact-value">Not specified</span>
+                                                </div>
+                                                <div class="executive-fact-item">
+                                                    <span class="executive-fact-label">Founded</span>
+                                                    <span id="executiveFounded" class="executive-fact-value">Not specified</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Market Opportunity Card -->
+                                        <div class="executive-sidebar-card">
+                                            <h3 class="executive-sidebar-title">Market Opportunity</h3>
+                                            <ul id="executiveMarketOpportunity" class="executive-bullet-list">
+                                                <!-- Bullets will be populated here -->
+                                            </ul>
+                                        </div>
+
+                                        <!-- Traction & Metrics Card -->
+                                        <div class="executive-sidebar-card">
+                                            <h3 class="executive-sidebar-title">Traction & Metrics</h3>
+                                            <ul id="executiveTraction" class="executive-bullet-list">
+                                                <!-- Bullets will be populated here -->
+                                            </ul>
+                                        </div>
+
+                                        <!-- Actions Card -->
+                                        <div class="executive-sidebar-card">
+                                            <h3 class="executive-sidebar-title">Actions</h3>
+                                            <div class="executive-actions-grid">
+                                                <button id="copyExecutiveSummaryBtn" class="executive-action-btn executive-action-primary">
+                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"/>
+                                                        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"/>
+                                                    </svg>
+                                                    Copy Summary
+                                                </button>
+                                                <button id="exportExecutiveJSONBtn" class="executive-action-btn executive-action-secondary">
+                                                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2"/>
+                                                    </svg>
+                                                    Export JSON
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Regular Analysis Display -->
+                        <div id="regularAnalysis" class="regular-analysis">
+                            <div id="analysisText" class="analysis-text"></div>
+                        </div>
+                        
                         <div class="analysis-actions">
                             <button id="copyAnalysisBtn" class="copy-btn">
                                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -328,6 +590,8 @@
         const uploadBtn = document.getElementById('uploadBtn');
         const loadingTitle = document.getElementById('loadingTitle');
         const loadingSubtitle = document.getElementById('loadingSubtitle');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercentage = document.getElementById('progressPercentage');
         
         const extractedTextDiv = document.getElementById('extractedText');
         const copyBtn = document.getElementById('copyBtn');
@@ -474,7 +738,32 @@
         function showLoading(title = 'Processing Document', subtitle = 'This may take a few moments...') {
             loadingTitle.textContent = title;
             loadingSubtitle.textContent = subtitle;
+            resetProgressBar();
             showSection(loadingSection);
+        }
+        
+        function updateProgress(percentage) {
+            progressFill.style.width = percentage + '%';
+            progressPercentage.textContent = percentage + '%';
+        }
+        
+        function resetProgressBar() {
+            updateProgress(0);
+        }
+        
+        function simulateProgress(targetPercentage, duration = 2000) {
+            const currentPercentage = parseInt(progressFill.style.width) || 0;
+            const increment = (targetPercentage - currentPercentage) / (duration / 100);
+            let current = currentPercentage;
+            
+            const interval = setInterval(() => {
+                current += increment;
+                if (current >= targetPercentage) {
+                    current = targetPercentage;
+                    clearInterval(interval);
+                }
+                updateProgress(Math.round(current));
+            }, 100);
         }
         
         function showError(message, showRetry = true) {
@@ -506,23 +795,38 @@
             
             showLoading('Processing PDF', 'Extracting text using AI...');
             
+            // Start progress simulation
+            simulateProgress(20, 1000); // 0-20% during upload prep
+            
             const formData = new FormData();
             formData.append('file', file);
             
             try {
+                // Simulate upload progress
+                simulateProgress(50, 2000); // 20-50% during upload
+                
                 const response = await fetch('/upload', {
                     method: 'POST',
                     body: formData
                 });
                 
+                // Simulate processing progress
+                simulateProgress(80, 1500); // 50-80% during processing
+                
                 const data = await response.json();
                 
                 if (data.success) {
-                    currentExtractedText = data.extracted_text;
-                    currentTextHash = hashText(data.extracted_text);
-                    agentCache = {};
-                    showResults(data.extracted_text);
-                    showToast('PDF processed successfully!', 'success');
+                    // Complete the progress bar
+                    updateProgress(100);
+                    
+                    // Small delay to show 100% completion
+                    setTimeout(() => {
+                        currentExtractedText = data.extracted_text;
+                        currentTextHash = hashText(data.extracted_text);
+                        agentCache = {};
+                        showResults(data.extracted_text);
+                        showToast('PDF processed successfully!', 'success');
+                    }, 500);
                 } else {
                     showError(data.detail || 'Failed to process PDF');
                 }
@@ -614,7 +918,10 @@
                 agentBtn.innerHTML = '<span>Analyzing...</span>';
                 agentStatus.classList.add('loading');
                 
-                showLoading('Running Analysis', `${getAgentTitle(agentType)} is processing your document...`);
+                showLoading('Running Analysis', `${getAgentTitle(agentType).replace(' Analysis', ' Agent')} is processing your document...`);
+                
+                // Start progress for agent analysis
+                simulateProgress(30, 1000);
                 
                 try {
                     const endpoint = getAgentEndpoint(agentType);
@@ -622,6 +929,9 @@
                         showError('Agent not available yet');
                         return;
                     }
+                    
+                    // Simulate analysis progress
+                    simulateProgress(70, 1500);
                     
                     const response = await fetch(endpoint, {
                         method: 'POST',
@@ -633,23 +943,29 @@
                         })
                     });
                     
+                    simulateProgress(90, 500);
+                    
                     const data = await response.json();
                     
                     if (data.success) {
-                        let analysisContent = formatAnalysisContent(data, agentType);
+                        updateProgress(100);
                         
-                        // Cache the result
-                        agentCache[cacheKey] = analysisContent;
-                        agentStatus.classList.add('completed');
-                        
-                        // Mark agent as completed for report generation
-                        markAgentCompleted(agentType, {
-                            content: analysisContent,
-                            rawData: data
-                        });
-                        
-                        showAnalysis(analysisContent, getAgentTitle(agentType));
-                        showToast('Analysis completed!', 'success');
+                        setTimeout(() => {
+                            let analysisContent = formatAnalysisContent(data, agentType);
+                            
+                            // Cache the result
+                            agentCache[cacheKey] = analysisContent;
+                            agentStatus.classList.add('completed');
+                            
+                            // Mark agent as completed for report generation
+                            markAgentCompleted(agentType, {
+                                content: analysisContent,
+                                rawData: data
+                            });
+                            
+                            showAnalysis(analysisContent, getAgentTitle(agentType));
+                            showToast('Analysis completed!', 'success');
+                        }, 300);
                     } else {
                         showError(data.detail || 'Analysis failed');
                     }
@@ -680,8 +996,8 @@
         
         function getAgentTitle(agentType, cached = false) {
             const titles = {
-                'pitchdeck': 'Pitch Deck Analysis',
-                'product': 'Product Analysis',
+                'pitchdeck': 'Executive Summary Analysis',
+                'product': 'Quick Checks Analysis',
                 'web-research': 'Web Research Analysis',
                 'market-size': 'Market Size Analysis'
             };
@@ -737,14 +1053,605 @@
         function showAnalysis(content, title) {
             analysisTitle.textContent = title;
             
+            // Check if this is a Quick Checks Analysis
+            if (title.includes('Quick Checks')) {
+                showQuickChecksAnalysis(content, title);
+            } else if (title.includes('Executive Summary')) {
+                showExecutiveSummaryAnalysis(content, title);
+            } else {
+                showRegularAnalysis(content, title);
+            }
+            
+            showSection(analysisSection);
+        }
+        
+        function showRegularAnalysis(content, title) {
+            const quickChecksDiv = document.getElementById('quickChecksAnalysis');
+            const regularDiv = document.getElementById('regularAnalysis');
+            
+            quickChecksDiv.classList.add('hidden');
+            regularDiv.classList.remove('hidden');
+            
             // Check if content appears to be markdown (contains # headers or ** bold)
             if (content.includes('#') || content.includes('**')) {
                 analysisTextDiv.innerHTML = markdownToHtml(content);
             } else {
                 analysisTextDiv.textContent = content;
             }
+        }
+        
+        function showQuickChecksAnalysis(content, title) {
+            const quickChecksDiv = document.getElementById('quickChecksAnalysis');
+            const regularDiv = document.getElementById('regularAnalysis');
             
-            showSection(analysisSection);
+            quickChecksDiv.classList.remove('hidden');
+            regularDiv.classList.add('hidden');
+            
+            // Parse the Quick Checks content
+            const parsedData = parseQuickChecksContent(content);
+            
+            // Populate the interactive interface
+            populateQuickChecksInterface(parsedData);
+        }
+        
+        function parseQuickChecksContent(content) {
+            const lines = content.split('\n').filter(line => line.trim());
+            let currentSection = '';
+            const sections = {};
+            let companyName = '';
+            let sector = '';
+            let overallScore = 0;
+            
+            // Extract company name and sector
+            for (let i = 0; i < Math.min(lines.length, 5); i++) {
+                const line = lines[i].trim();
+                if (!line.includes('🔹') && !line.includes('➡️') && line.length > 0) {
+                    if (line.toLowerCase().includes('sector:')) {
+                        sector = line.replace(/sector:\s*/i, '').trim();
+                    } else if (!companyName && !line.includes('[') && line.length > 2) {
+                        companyName = line;
+                    }
+                }
+            }
+            
+            // Define section patterns
+            const sectionPatterns = {
+                'problem': /^Problem\s*$/i,
+                'market': /^Market\s*$/i,
+                'product': /^Product & Technology\s*$/i,
+                'team': /^Team\s*$/i,
+                'vision': /^Vision of the Future\s*$/i
+            };
+            
+            // Parse sections and questions
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                
+                // Check for section headers
+                for (const [key, pattern] of Object.entries(sectionPatterns)) {
+                    if (pattern.test(line)) {
+                        currentSection = key;
+                        sections[currentSection] = { questions: [], scores: [] };
+                        break;
+                    }
+                }
+                
+                // Check for questions
+                if (line.startsWith('🔹') && currentSection) {
+                    const questionText = line.replace('🔹', '').trim();
+                    let answer = '';
+                    let justification = '';
+                    let score = null;
+                    
+                    // Look for answer and score in next lines (extended search)
+                    for (let j = i + 1; j < Math.min(i + 5, lines.length); j++) {
+                        const nextLine = lines[j].trim();
+                        
+                        // Check for answer line
+                        if (nextLine.match(/^(Yes|No|Not enough information)/i)) {
+                            const parts = nextLine.split('–');
+                            answer = parts[0].trim();
+                            justification = parts.length > 1 ? parts[1].trim() : '';
+                        }
+                        
+                        // Check for score line (should come after answer/justification)
+                        else if (nextLine.match(/^\d+(\.\d+)?$/) && answer) {
+                            score = parseFloat(nextLine);
+                            sections[currentSection].scores.push(score);
+                            break; // Found score, move to next question
+                        }
+                        
+                        // Stop if we hit another question or section
+                        if (nextLine.startsWith('🔹') || Object.values(sectionPatterns).some(pattern => pattern.test(nextLine))) {
+                            break;
+                        }
+                    }
+                    
+                    sections[currentSection].questions.push({
+                        text: questionText,
+                        answer: answer,
+                        justification: justification,
+                        score: score
+                    });
+                }
+                
+                // Check for overall score
+                if (line.includes('➡️') && line.toLowerCase().includes('score')) {
+                    const scoreMatch = line.match(/(\d+(\.\d+)?)/);
+                    if (scoreMatch) {
+                        overallScore = parseFloat(scoreMatch[1]);
+                    }
+                }
+            }
+            
+            // Calculate overall score as average of all individual scores if not provided
+            if (overallScore === 0) {
+                const allScores = Object.values(sections).flatMap(section => section.scores);
+                if (allScores.length > 0) {
+                    overallScore = allScores.reduce((sum, score) => sum + score, 0) / allScores.length;
+                }
+            }
+            
+            return {
+                companyName: companyName || '[Company Name]',
+                sector: sector || '[Sector]',
+                sections: sections,
+                overallScore: overallScore
+            };
+        }
+        
+        function populateQuickChecksInterface(data) {
+            // Update company info
+            document.getElementById('companyName').textContent = data.companyName;
+            document.getElementById('companySector').textContent = `Sector: ${data.sector}`;
+            
+            // Store data globally for filtering
+            window.quickChecksData = data;
+            
+            // Calculate and display statistics
+            updateQuestionStats(data);
+            
+            // Update score visualization
+            updateScoreVisualization(data);
+            
+            // Display all questions initially
+            displayQuestions('all');
+            
+            // Set up filter button handlers
+            setupFilterButtons();
+        }
+        
+        function updateQuestionStats(data) {
+            let totalQuestions = 0;
+            let yesCount = 0;
+            let noCount = 0;
+            let neiCount = 0;
+            
+            Object.values(data.sections).forEach(section => {
+                section.questions.forEach(question => {
+                    totalQuestions++;
+                    const answer = question.answer.toLowerCase();
+                    if (answer.includes('yes')) {
+                        yesCount++;
+                    } else if (answer.includes('no') && !answer.includes('not enough')) {
+                        noCount++;
+                    } else if (answer.includes('not enough')) {
+                        neiCount++;
+                    }
+                });
+            });
+            
+            document.getElementById('totalQuestions').textContent = totalQuestions;
+            document.getElementById('yesCount').textContent = yesCount;
+            document.getElementById('noCount').textContent = noCount;
+            document.getElementById('neiCount').textContent = neiCount;
+        }
+        
+        function updateScoreVisualization(data) {
+            const scoreValue = document.getElementById('scoreValue');
+            const progressCircle = document.getElementById('progressCircle');
+            
+            // Calculate overall score using SQL-like aggregation (average of all individual question scores)
+            const allIndividualScores = Object.values(data.sections)
+                .flatMap(section => section.questions)
+                .map(question => question.score)
+                .filter(score => score !== null && score !== undefined);
+            
+            let calculatedOverallScore = data.overallScore;
+            if (allIndividualScores.length > 0) {
+                calculatedOverallScore = allIndividualScores.reduce((sum, score) => sum + score, 0) / allIndividualScores.length;
+            }
+            
+            // Update main score display
+            scoreValue.textContent = calculatedOverallScore.toFixed(1);
+            
+            // Calculate progress percentage (0-10 scale to 0-100%)
+            const percentage = (calculatedOverallScore / 10) * 100;
+            const circumference = 2 * Math.PI * 50; // radius = 50
+            const offset = circumference - (percentage / 100) * circumference;
+            
+            // Animate the circular progress
+            setTimeout(() => {
+                progressCircle.style.strokeDashoffset = offset;
+            }, 100);
+            
+            // Update section scores using SQL-like GROUP BY aggregation
+            Object.entries(data.sections).forEach(([sectionKey, section]) => {
+                const scoreElement = document.querySelector(`[data-section="${sectionKey}"] .section-score`);
+                if (scoreElement) {
+                    // Calculate category average using individual question scores (not section.scores)
+                    const sectionScores = section.questions
+                        .map(question => question.score)
+                        .filter(score => score !== null && score !== undefined);
+                    
+                    if (sectionScores.length > 0) {
+                        const avgScore = sectionScores.reduce((sum, score) => sum + score, 0) / sectionScores.length;
+                        scoreElement.textContent = avgScore.toFixed(1);
+                    } else {
+                        scoreElement.textContent = '-';
+                    }
+                }
+            });
+        }
+        
+        function displayQuestions(filterSection) {
+            const tableBody = document.getElementById('questionsTableBody');
+            const titleElement = document.getElementById('currentSectionTitle');
+            const data = window.quickChecksData;
+            
+            if (!data) return;
+            
+            tableBody.innerHTML = '';
+            
+            // Update title
+            if (filterSection === 'all') {
+                titleElement.textContent = 'All Questions';
+            } else {
+                const sectionNames = {
+                    'problem': 'Problem',
+                    'market': 'Market',
+                    'product': 'Product & Technology',
+                    'team': 'Team',
+                    'vision': 'Vision of the Future'
+                };
+                titleElement.textContent = sectionNames[filterSection] || 'Questions';
+            }
+            
+            // Get questions to display
+            let questionsToShow = [];
+            if (filterSection === 'all') {
+                Object.entries(data.sections).forEach(([sectionKey, section]) => {
+                    section.questions.forEach(question => {
+                        questionsToShow.push({ ...question, section: sectionKey });
+                    });
+                });
+            } else if (data.sections[filterSection]) {
+                questionsToShow = data.sections[filterSection].questions.map(q => ({ ...q, section: filterSection }));
+            }
+            
+            // Create table rows
+            questionsToShow.forEach(question => {
+                const tableRow = createTableRow(question);
+                tableBody.appendChild(tableRow);
+            });
+        }
+        
+        function createTableRow(question) {
+            const row = document.createElement('tr');
+            row.className = 'table-row-modern';
+            
+            // Determine answer class
+            let answerClass = 'nei';
+            const answer = question.answer.toLowerCase();
+            if (answer.includes('yes')) {
+                answerClass = 'yes';
+            } else if (answer.includes('no') && !answer.includes('not enough')) {
+                answerClass = 'no';
+            }
+            
+            row.innerHTML = `
+                <td class="table-cell">
+                    <div class="table-question-text">${question.text}</div>
+                </td>
+                <td class="table-cell">
+                    <span class="answer-badge-modern ${answerClass}">${question.answer}</span>
+                </td>
+                <td class="table-cell">
+                    <div class="table-justification-text">${question.justification}</div>
+                </td>
+                <td class="table-cell text-center">
+                    ${question.score !== null ? `<span class="grade-badge-modern">${question.score}</span>` : '<span class="table-no-score">-</span>'}
+                </td>
+            `;
+            
+            return row;
+        }
+        
+        
+        function setupFilterButtons() {
+            const filterButtons = document.querySelectorAll('.filter-btn-modern');
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove active class from all buttons
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    button.classList.add('active');
+                    
+                    // Get the section to filter
+                    const section = button.getAttribute('data-section');
+                    
+                    // Display filtered questions
+                    displayQuestions(section);
+                    
+                    // Update table caption
+                    updateTableCaption(section);
+                });
+            });
+        }
+        
+        function updateTableCaption(section) {
+            const tableCaption = document.getElementById('tableCaption');
+            const sectionNames = {
+                'all': 'All Questions',
+                'problem': 'Problem',
+                'market': 'Market',
+                'product': 'Product & Technology',
+                'team': 'Team',
+                'vision': 'Vision of the Future'
+            };
+            const sectionName = sectionNames[section] || 'Questions';
+            tableCaption.textContent = `Items from "${sectionName}" section.`;
+        }
+        
+        // Executive Summary Functions
+        function showExecutiveSummaryAnalysis(content, title) {
+            const quickChecksDiv = document.getElementById('quickChecksAnalysis');
+            const regularDiv = document.getElementById('regularAnalysis');
+            const executiveDiv = document.getElementById('executiveSummaryAnalysis');
+            
+            quickChecksDiv.classList.add('hidden');
+            regularDiv.classList.add('hidden');
+            executiveDiv.classList.remove('hidden');
+            
+            // Parse the Executive Summary content
+            const parsedData = parseExecutiveSummaryContent(content);
+            
+            // Populate the interface
+            populateExecutiveSummaryInterface(parsedData);
+        }
+        
+        function parseExecutiveSummaryContent(content) {
+            const lines = content.split('\n').filter(line => line.trim());
+            let companyName = '';
+            let sector = '';
+            let stage = 'Not specified';
+            let hq = 'Not specified';
+            let founded = 'Not specified';
+            
+            const sections = {
+                overview: [],
+                product: [],
+                businessModel: [],
+                marketOpportunity: [],
+                traction: [],
+                team: []
+            };
+            
+            let currentSection = '';
+            let i = 0;
+            let inQuickFacts = false;
+            
+            // Parse through all lines
+            while (i < lines.length) {
+                const line = lines[i].trim();
+                
+                // Extract company name and sector from first few lines
+                if (i < 5) {
+                    if (line.toLowerCase().startsWith('sector:')) {
+                        sector = line.replace(/sector:\s*/i, '').trim();
+                    } else if (!line.includes('🔹') && line.length > 2 && !companyName && !line.toLowerCase().includes('sector')) {
+                        // Handle company name with or without # prefix
+                        let cleanName = line.replace(/^#+\s*/, '').trim(); // Remove # prefix
+                        if (cleanName && cleanName !== 'Company Overview' && cleanName !== 'Product' && cleanName !== 'Business Model') {
+                            companyName = cleanName;
+                        }
+                    }
+                }
+                
+                // Check for Quick Facts section
+                if (line.toLowerCase().includes('quick facts')) {
+                    inQuickFacts = true;
+                    currentSection = '';
+                } else if (inQuickFacts && !line.startsWith('[') && line.length > 0) {
+                    // Parse Quick Facts data - look for lines that aren't placeholders
+                    if (!line.includes('[Insert') && !line.includes('🔹')) {
+                        // Check what type of fact this might be
+                        const lowerLine = line.toLowerCase();
+                        if (lowerLine.includes('series') || lowerLine.includes('stage') || lowerLine.includes('round')) {
+                            stage = line;
+                        } else if (lowerLine.includes(',') && (lowerLine.includes('usa') || lowerLine.includes('canada') || lowerLine.includes('uk') || lowerLine.includes('france') || lowerLine.includes('germany') || lowerLine.includes('🇺🇸') || lowerLine.includes('🇨🇦') || lowerLine.includes('🇬🇧') || lowerLine.includes('🇫🇷') || lowerLine.includes('🇩🇪'))) {
+                            hq = line;
+                        } else if (line.match(/^\d{4}$/) || line.match(/\d{4}/)) {
+                            founded = line;
+                        }
+                    }
+                }
+                
+                // Check for section headers (only when not in Quick Facts)
+                if (!inQuickFacts) {
+                    const cleanLine = line.replace(/^#+\s*/, '').toLowerCase(); // Remove markdown headers
+                    if (cleanLine.includes('company overview')) {
+                        currentSection = 'overview';
+                    } else if (cleanLine.includes('product') && !line.includes('🔹')) {
+                        currentSection = 'product';
+                    } else if (cleanLine.includes('business model')) {
+                        currentSection = 'businessModel';
+                    } else if (cleanLine.includes('market opportunity')) {
+                        currentSection = 'marketOpportunity';
+                    } else if (cleanLine.includes('traction') || cleanLine.includes('metrics')) {
+                        currentSection = 'traction';
+                    } else if (cleanLine.includes('team') && !line.includes('🔹')) {
+                        currentSection = 'team';
+                    }
+                }
+                
+                // Reset inQuickFacts when we hit a main section
+                const cleanLineForReset = line.replace(/^#+\s*/, '').toLowerCase();
+                if (cleanLineForReset.includes('company overview') || 
+                    cleanLineForReset.includes('product') || 
+                    cleanLineForReset.includes('business model') || 
+                    cleanLineForReset.includes('market opportunity') || 
+                    cleanLineForReset.includes('traction') || 
+                    cleanLineForReset.includes('team')) {
+                    inQuickFacts = false;
+                }
+                
+                // Extract bullet points for main sections
+                if (line.startsWith('🔹') && currentSection && !inQuickFacts) {
+                    const bulletText = line.replace('🔹', '').trim();
+                    // Check if this is actual content or a placeholder
+                    const isPlaceholder = bulletText.startsWith('[') && bulletText.endsWith(']');
+                    const isNotSpecified = bulletText.toLowerCase() === 'not specified';
+                    
+                    if (bulletText && !isPlaceholder && !isNotSpecified) {
+                        sections[currentSection].push(bulletText);
+                    }
+                }
+                
+                i++;
+            }
+            
+            return {
+                companyName: companyName || '[Company Name]',
+                sector: sector || '[Sector]',
+                stage: stage,
+                hq: hq,
+                founded: founded,
+                sections: sections
+            };
+        }
+        
+        function populateExecutiveSummaryInterface(data) {
+            // Update company info
+            document.getElementById('executiveCompanyName').textContent = data.companyName;
+            document.getElementById('executiveSector').textContent = `Sector: ${data.sector}`;
+            
+            // Update Quick Facts
+            document.getElementById('executiveStage').textContent = data.stage;
+            document.getElementById('executiveHQ').textContent = data.hq;
+            document.getElementById('executiveFounded').textContent = data.founded;
+            
+            // Add not-specified class if needed
+            const stageElement = document.getElementById('executiveStage');
+            const hqElement = document.getElementById('executiveHQ');
+            const foundedElement = document.getElementById('executiveFounded');
+            
+            if (data.stage === 'Not specified') stageElement.classList.add('not-specified');
+            else stageElement.classList.remove('not-specified');
+            
+            if (data.hq === 'Not specified') hqElement.classList.add('not-specified');
+            else hqElement.classList.remove('not-specified');
+            
+            if (data.founded === 'Not specified') foundedElement.classList.add('not-specified');
+            else foundedElement.classList.remove('not-specified');
+            
+            // Populate sections
+            populateExecutiveSection('executiveOverview', data.sections.overview);
+            populateExecutiveSection('executiveProduct', data.sections.product);
+            populateExecutiveSection('executiveBusinessModel', data.sections.businessModel);
+            populateExecutiveSection('executiveMarketOpportunity', data.sections.marketOpportunity);
+            populateExecutiveSection('executiveTraction', data.sections.traction);
+            populateExecutiveSection('executiveTeam', data.sections.team);
+            
+            // Store data globally for actions
+            window.executiveSummaryData = data;
+            
+            // Set up action button handlers
+            setupExecutiveActionButtons();
+        }
+        
+        function populateExecutiveSection(elementId, bullets) {
+            const element = document.getElementById(elementId);
+            element.innerHTML = '';
+            
+            if (bullets.length === 0) {
+                const li = document.createElement('li');
+                li.className = 'not-specified';
+                li.textContent = 'Not specified';
+                element.appendChild(li);
+            } else {
+                bullets.forEach(bullet => {
+                    const li = document.createElement('li');
+                    li.textContent = bullet;
+                    element.appendChild(li);
+                });
+            }
+        }
+        
+        function setupExecutiveActionButtons() {
+            const copyBtn = document.getElementById('copyExecutiveSummaryBtn');
+            const exportBtn = document.getElementById('exportExecutiveJSONBtn');
+            
+            copyBtn.addEventListener('click', async () => {
+                try {
+                    const data = window.executiveSummaryData;
+                    const summaryText = generateExecutiveSummaryText(data);
+                    await navigator.clipboard.writeText(summaryText);
+                    showToast('Executive summary copied to clipboard!', 'success');
+                } catch (err) {
+                    showToast('Failed to copy summary', 'error');
+                }
+            });
+            
+            exportBtn.addEventListener('click', async () => {
+                try {
+                    const data = window.executiveSummaryData;
+                    const jsonData = {
+                        company: data.companyName,
+                        sector: data.sector,
+                        overview: data.sections.overview,
+                        product: data.sections.product,
+                        businessModel: data.sections.businessModel,
+                        marketOpportunity: data.sections.marketOpportunity,
+                        traction: data.sections.traction,
+                        team: data.sections.team
+                    };
+                    
+                    await navigator.clipboard.writeText(JSON.stringify(jsonData, null, 2));
+                    showToast('JSON data copied to clipboard!', 'success');
+                } catch (err) {
+                    showToast('Failed to copy JSON', 'error');
+                }
+            });
+        }
+        
+        function generateExecutiveSummaryText(data) {
+            let text = `${data.companyName}\nSector: ${data.sector}\n\n`;
+            
+            const sectionTitles = {
+                overview: 'Company Overview',
+                product: 'Product',
+                businessModel: 'Business Model',
+                marketOpportunity: 'Market Opportunity',
+                traction: 'Traction & Metrics',
+                team: 'Team'
+            };
+            
+            Object.entries(data.sections).forEach(([key, bullets]) => {
+                text += `${sectionTitles[key]}\n`;
+                if (bullets.length === 0) {
+                    text += '🔹 Not specified\n';
+                } else {
+                    bullets.forEach(bullet => {
+                        text += `🔹 ${bullet}\n`;
+                    });
+                }
+                text += '\n';
+            });
+            
+            return text;
         }
         
         // Copy functionality
@@ -790,6 +1697,9 @@
             
             showLoading('Generating Comprehensive Report', 'Merging all analyses into a beautiful report...');
             
+            // Start progress for report generation
+            simulateProgress(25, 1000);
+            
             try {
                 // Prepare the request data
                 const requestData = {
@@ -800,6 +1710,8 @@
                     company_name: agentResults['web-research']?.rawData?.company_name || null
                 };
                 
+                simulateProgress(60, 1500);
+                
                 const response = await fetch('/generate_report', {
                     method: 'POST',
                     headers: {
@@ -808,12 +1720,18 @@
                     body: JSON.stringify(requestData)
                 });
                 
+                simulateProgress(90, 500);
+                
                 const data = await response.json();
                 
                 if (data.success) {
-                    reportCache = data.comprehensive_report;
-                    showReport(reportCache);
-                    showToast('Comprehensive report generated!', 'success');
+                    updateProgress(100);
+                    
+                    setTimeout(() => {
+                        reportCache = data.comprehensive_report;
+                        showReport(reportCache);
+                        showToast('Comprehensive report generated!', 'success');
+                    }, 300);
                 } else {
                     showError(data.detail || 'Failed to generate report');
                 }

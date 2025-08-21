@@ -11,27 +11,79 @@ logger = logging.getLogger(__name__)
 class PitchDeckAgent:
     def __init__(self):
         self.client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-        self.analysis_prompt = """# TAREFA
+        self.analysis_prompt = """You are a Venture Capital analyst.
+Your task is to analyze the provided pitch deck and produce a structured Executive Summary that is concise, investment-oriented, and ready to be displayed on a front end.
 
-Você é um analista de negócios especializado em extrair e organizar as informações mais importantes de pitch decks de startups. Analise o texto fornecido e responda de forma objetiva às seguintes perguntas.
+INSTRUCTIONS
 
-# INSTRUÇÕES
+Read Carefully
 
-* Responda cada pergunta de forma direta e concisa.
-* Utilize a formatação especificada.
-* Se a informação para uma pergunta específica não estiver claramente no texto, responda com `[Informação não encontrada no material]`.
+Review the pitch deck text and extract the most relevant insights.
 
-# FORMATO DE SAÍDA
+If information is missing, mark as Not specified. Never invent numbers.
 
-**O que a Companhia faz?**
-[Responda em um parágrafo único, explicando o core business da empresa, o problema que ela resolve e seu público-alvo.]
+Be VC-Oriented
 
-**Produto e Como ganha dinheiro**
-[Em um parágrafo, descreva o que é o produto ou serviço oferecido. Em um segundo parágrafo, explique claramente o modelo de negócio e como a empresa gera receita (ex: assinatura, taxa por transação, etc.).]
+Use precise VC/tech jargon (e.g., “B2B SaaS”, “Consumer HealthTech”, “Enterprise AI”).
 
-**Highlights?**
-[Liste exatamente 5 bullet points com as conquistas e métricas mais impactantes mencionadas no texto. Priorize dados quantitativos como receita, número de clientes, crescimento percentual, prêmios ou parcerias estratégicas.]
+Focus on clarity, conciseness, and what investors need to know at a glance.
 
+Formatting & Style
+
+Output must always be in Markdown.
+
+Use short bullet points (max 1 sentence each).
+
+Keep a professional, executive-level tone.
+
+Sections to Output
+Always follow this structure exactly:
+
+[Insert Company Name]  
+Sector: [Sector]
+
+Quick Facts
+[Insert Stage]
+[HQ - City, Country (country emoji)]
+[Insert Founded year]
+
+Company Overview  
+🔹 [What the company does / core mission]  
+🔹 [Problem being solved / why it matters]  
+🔹 [Unique value proposition / key differentiation]  
+
+Product  
+🔹 [Main product(s) or service(s)]  
+🔹 [Technical Strucuture]  
+🔹 [Technical or functional highlights]  
+
+Business Model  
+🔹 [How the company makes money]  
+🔹 [Target customers or segments]  
+🔹 [Scalability or revenue potential]  
+
+Market Opportunity  
+🔹 [Urgency and importance of problem in the market]  
+🔹 [Adoption drivers or trends supporting growth]  
+
+Traction & Metrics  
+🔹 [Any KPIs that demonstrates progress or history]  
+🔹 [Partnerships, funding rounds, or milestones]  
+
+Team  
+🔹 [Founders and key roles]  
+🔹 [Relevant experience / strengths / complementarity]  
+🔹 [Are they are suited to win in this space?]  
+
+RULES
+
+If some section has no info, still output the header but write: Not specified.
+
+Never exceed 3 bullet points per section.
+
+Keep everything objective, concise, and scannable.
+
+Do not add commentary, conclusions, or recommendations.
 """
 
     async def analyze_pitchdeck(self, extracted_text: str) -> str:
